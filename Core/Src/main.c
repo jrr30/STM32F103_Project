@@ -27,6 +27,7 @@
 /* USER CODE BEGIN Includes */
 #include "FreeRTOS.h"
 #include "task.h"
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,6 +48,9 @@
 
 /* USER CODE BEGIN PV */
 TaskHandle_t Task_1_Handler = NULL;
+TaskHandle_t Print_Time_Handler = NULL;
+TaskHandle_t Process_Rx_Data_Handler = NULL;
+
 BaseType_t Status;
 /* USER CODE END PV */
 
@@ -55,6 +59,9 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 
 static void Task_1_funtion(void * parameters);
+static void Print_Time_Runnable(void * parameters);
+static void Process_UART_Data(void * parameters);
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -94,8 +101,12 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  Status = xTaskCreate(Task_1_funtion, "Task 1", 100, "Hello World", 3, &Task_1_Handler);
+  Status = xTaskCreate(Task_1_funtion, "Task 1", 100, NULL, 2, &Task_1_Handler);
+  Status = xTaskCreate(Print_Time_Runnable, "Print Time", 100, NULL, 2, &Print_Time_Handler);
+  Status = xTaskCreate(Process_UART_Data, "UART Rx", 100, NULL, 2, &Process_Rx_Data_Handler);
 
+
+  vTaskStartScheduler();
 
   /* USER CODE END 2 */
 
@@ -154,12 +165,44 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
+static void Process_UART_Data(void * parameters)
+{
+	for(;;)
+	{
+		printf("Process UART TX Rx Alive\n");
+		taskYIELD();
+	}
+}
+
 static void Task_1_funtion(void * parameters)
 {
 	for(;;)
 	{
-
+		printf("Getting Time Alive\n");
+		taskYIELD();
 	}
+}
+
+static void Print_Time_Runnable(void * parameters)
+{
+	for(;;)
+	{
+		printf("Printing Time Alive\n");
+		taskYIELD();
+	}
+}
+
+
+
+int _write(int file, char *ptr, int len)
+{
+	int DataIdx;
+
+	for (DataIdx = 0; DataIdx < len; DataIdx++)
+	{
+		ITM_SendChar(*ptr++);
+	}
+	return len;
 }
 /* USER CODE END 4 */
 
