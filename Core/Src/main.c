@@ -27,6 +27,7 @@
 /* USER CODE BEGIN Includes */
 #include "FreeRTOS.h"
 #include "task.h"
+#include "queue.h"
 #include <stdio.h>
 /* USER CODE END Includes */
 
@@ -49,10 +50,14 @@
 /* USER CODE BEGIN PV */
 
 extern RTC_HandleTypeDef hrtc;
+extern UART_HandleTypeDef huart1;
 
 TaskHandle_t Get_Time_Handler = NULL;
 TaskHandle_t Print_Time_Handler = NULL;
 TaskHandle_t Process_Rx_Data_Handler = NULL;
+
+QueueHandle_t Time_Queue_Handler = NULL;
+QueueHandle_t Time_UART_Rx_Queue_Handler = NULL;
 
 BaseType_t Status;
 /* USER CODE END PV */
@@ -104,9 +109,12 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
+  Time_Queue_Handler = xQueueCreate(1,sizeof(RTC_TimeTypeDef));
+  Time_UART_Rx_Queue_Handler = xQueueCreate(1,sizeof(RTC_TimeTypeDef));
+
   Status = xTaskCreate(Get_Time_RTC_Runnable, "Get Time ", 100, NULL, 2, &Get_Time_Handler);
   Status = xTaskCreate(Print_Time_Runnable, "Print Time", 100, NULL, 2, &Print_Time_Handler);
-  Status = xTaskCreate(Process_UART_Data_unnable, "UART Rx", 100, NULL, 2, &Process_Rx_Data_Handler);
+  Status = xTaskCreate(Process_UART_Data_unnable, "UART Rx", 100, NULL, 3, &Process_Rx_Data_Handler);
 
 
   vTaskStartScheduler();
@@ -170,9 +178,11 @@ void SystemClock_Config(void)
 
 static void Process_UART_Data_unnable(void * parameters)
 {
+	RTC_TimeTypeDef L_RTC_Data;
 	for(;;)
 	{
 		printf("Process UART TX Rx Alive\n");
+		xQueueReceive(Time_UART_Rx_Queue_Handler, &L_RTC_Data, portMAX_DELAY);
 		taskYIELD();
 	}
 }
@@ -182,18 +192,22 @@ static void Get_Time_RTC_Runnable(void * parameters)
 	RTC_TimeTypeDef Local_RTC_Data;
 	for(;;)
 	{
+		printf("Getting Time Alive\n");
 		HAL_RTC_GetTime(&hrtc, &Local_RTC_Data, RTC_FORMAT_BIN);
-		//printf("Getting Time Alive\n");
-		printf("%d:%d:%d\n", Local_RTC_Data.Hours, Local_RTC_Data.Minutes, Local_RTC_Data.Seconds);
+		xQueueSend(Time_Queue_Handler, &Local_RTC_Data, 0);
 		taskYIELD();
 	}
 }
 
 static void Print_Time_Runnable(void * parameters)
 {
+	RTC_TimeTypeDef L_RTC_Data;
 	for(;;)
 	{
-		printf("Printing Time Alive\n");
+		//printf("Printing Time Alive\n");
+		xQueueReceive(Time_Queue_Handler, &L_RTC_Data, portMAX_DELAY);
+		HAL_UART_Transmit_IT(&huart1, &L_RTC_Data.Seconds, 1);
+		printf("%d:%d:%d\n", L_RTC_Data.Hours, L_RTC_Data.Minutes, L_RTC_Data.Seconds);
 		taskYIELD();
 	}
 }
@@ -209,6 +223,11 @@ int _write(int file, char *ptr, int len)
 		ITM_SendChar(*ptr++);
 	}
 	return len;
+}
+
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+{
+   __NOP();// do nothing here
 }
 /* USER CODE END 4 */
 
