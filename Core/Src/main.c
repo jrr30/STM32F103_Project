@@ -60,6 +60,9 @@ QueueHandle_t Time_Queue_Handler = NULL;
 QueueHandle_t Time_UART_Rx_Queue_Handler = NULL;
 
 BaseType_t Status;
+
+uint8_t fixed_end_nextion [] = {0xFF, 0xFF, 0xFF};
+static uint8_t Buffer_time[50] = {0};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -204,9 +207,12 @@ static void Print_Time_Runnable(void * parameters)
 	RTC_TimeTypeDef L_RTC_Data;
 	for(;;)
 	{
-		//printf("Printing Time Alive\n");
 		xQueueReceive(Time_Queue_Handler, &L_RTC_Data, portMAX_DELAY);
-		HAL_UART_Transmit_IT(&huart1, &L_RTC_Data.Seconds, 1);
+		uint16_t leng_message_uart = sprintf((char *)Buffer_time, "t0.txt=\"%02d:%02d:%02d\"", L_RTC_Data.Hours, L_RTC_Data.Minutes, L_RTC_Data.Seconds);
+		//HAL_UART_Transmit_IT(&huart1, &Buffer_time, 16);
+		//HAL_UART_Transmit_IT(&huart1, &fixed_end_nextion, 3);
+		HAL_UART_Transmit(&huart1, Buffer_time, leng_message_uart, 1000);
+		HAL_UART_Transmit(&huart1, fixed_end_nextion, 3, 1000);
 		printf("%d:%d:%d\n", L_RTC_Data.Hours, L_RTC_Data.Minutes, L_RTC_Data.Seconds);
 		taskYIELD();
 	}
