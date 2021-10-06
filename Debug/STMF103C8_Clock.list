@@ -534,8 +534,10 @@ static void Print_Time_Runnable(void * parameters)
  8000430:	f004 fffa 	bl	8005428 <siprintf>
  8000434:	4603      	mov	r3, r0
  8000436:	81fb      	strh	r3, [r7, #14]
-		//HAL_UART_Transmit_IT(&huart1, &Buffer_time, 16);
-		//HAL_UART_Transmit_IT(&huart1, &fixed_end_nextion, 3);
+#if 0
+		HAL_UART_Transmit_IT(&huart1, &Buffer_time, 16);
+		HAL_UART_Transmit_IT(&huart1, &fixed_end_nextion, 3);
+#endif
 		HAL_UART_Transmit(&huart1, Buffer_time, leng_message_uart, 1000);
  8000438:	89fa      	ldrh	r2, [r7, #14]
  800043a:	f44f 737a 	mov.w	r3, #1000	; 0x3e8

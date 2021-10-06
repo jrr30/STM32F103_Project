@@ -209,8 +209,10 @@ static void Print_Time_Runnable(void * parameters)
 	{
 		xQueueReceive(Time_Queue_Handler, &L_RTC_Data, portMAX_DELAY);
 		uint16_t leng_message_uart = sprintf((char *)Buffer_time, "t0.txt=\"%02d:%02d:%02d\"", L_RTC_Data.Hours, L_RTC_Data.Minutes, L_RTC_Data.Seconds);
-		//HAL_UART_Transmit_IT(&huart1, &Buffer_time, 16);
-		//HAL_UART_Transmit_IT(&huart1, &fixed_end_nextion, 3);
+#if 0
+		HAL_UART_Transmit_IT(&huart1, &Buffer_time, 16);
+		HAL_UART_Transmit_IT(&huart1, &fixed_end_nextion, 3);
+#endif
 		HAL_UART_Transmit(&huart1, Buffer_time, leng_message_uart, 1000);
 		HAL_UART_Transmit(&huart1, fixed_end_nextion, 3, 1000);
 		printf("%d:%d:%d\n", L_RTC_Data.Hours, L_RTC_Data.Minutes, L_RTC_Data.Seconds);
