@@ -29,6 +29,7 @@
 #include "task.h"
 #include "queue.h"
 #include <stdio.h>
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -38,6 +39,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define SIZE_RX 18
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -60,9 +62,13 @@ QueueHandle_t Time_Queue_Handler = NULL;
 QueueHandle_t Time_UART_Rx_Queue_Handler = NULL;
 
 BaseType_t Status;
+char * found = NULL;
 
 uint8_t fixed_end_nextion [] = {0xFF, 0xFF, 0xFF};
-static uint8_t Buffer_time[50] = {0};
+uint8_t String_Search_Nextion[] = "Settings";
+
+static uint8_t Buffer_time[25] = {0};
+volatile uint8_t UART1_rxBuffer[SIZE_RX] = {0};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -113,7 +119,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   Time_Queue_Handler = xQueueCreate(1,sizeof(RTC_TimeTypeDef));
-  Time_UART_Rx_Queue_Handler = xQueueCreate(1,sizeof(RTC_TimeTypeDef));
+  Time_UART_Rx_Queue_Handler = xQueueCreate(1,sizeof(UART1_rxBuffer));
 
   Status = xTaskCreate(Get_Time_RTC_Runnable, "Get Time ", 100, NULL, 2, &Get_Time_Handler);
   Status = xTaskCreate(Print_Time_Runnable, "Print Time", 100, NULL, 2, &Print_Time_Handler);
@@ -181,12 +187,45 @@ void SystemClock_Config(void)
 
 static void Process_UART_Data_unnable(void * parameters)
 {
-	RTC_TimeTypeDef L_RTC_Data;
+	uint8_t UART1_rxBuffer_Runnable[SIZE_RX] = {0};
+	BaseType_t L_Status_UART_Rx;
 	for(;;)
 	{
+		HAL_UART_Receive_IT (&huart1, (uint8_t *)UART1_rxBuffer, SIZE_RX);
 		printf("Process UART TX Rx Alive\n");
-		xQueueReceive(Time_UART_Rx_Queue_Handler, &L_RTC_Data, portMAX_DELAY);
-		taskYIELD();
+		L_Status_UART_Rx = xQueueReceive(Time_UART_Rx_Queue_Handler, &UART1_rxBuffer_Runnable, portMAX_DELAY);
+
+		if(L_Status_UART_Rx == pdTRUE)
+		{
+			found = strstr((char *)UART1_rxBuffer,(char *)String_Search_Nextion);
+
+			if(found)
+			{
+				memset(UART1_rxBuffer, 0, sizeof(UART1_rxBuffer));
+				printf("Settings config activated\n");
+				vTaskSuspend(Get_Time_Handler);
+				printf("Suspending Get time task\n");
+				vTaskSuspend(Print_Time_Handler);
+				printf("Suspending Print time task\n");
+				taskYIELD();
+
+
+			}
+			else
+			{
+				memset(UART1_rxBuffer, 0, sizeof(UART1_rxBuffer));
+				printf("Settings config No-activated\n");
+				vTaskResume(Get_Time_Handler);
+				printf("Alive Get time task\n");
+				vTaskResume(Print_Time_Handler);
+				printf("Alive Print time task\n");
+				taskYIELD();
+			}
+		}
+		else
+		{
+			taskYIELD();
+		}
 	}
 }
 
@@ -236,6 +275,12 @@ int _write(int file, char *ptr, int len)
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
    __NOP();// do nothing here
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	memset(UART1_rxBuffer, 0, sizeof(UART1_rxBuffer));
+	xQueueSendFromISR(Time_UART_Rx_Queue_Handler,&UART1_rxBuffer, NULL);
 }
 /* USER CODE END 4 */
 
