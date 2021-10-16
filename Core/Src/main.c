@@ -39,7 +39,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define SIZE_RX 18
+#define SIZE_RX 8
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -78,6 +78,7 @@ void SystemClock_Config(void);
 static void Get_Time_RTC_Runnable(void * parameters);
 static void Print_Time_Runnable(void * parameters);
 static void Process_UART_Data_unnable(void * parameters);
+static uint16_t Format_to_12(RTC_TimeTypeDef const *RTC_Struct_Info);
 
 /* USER CODE END PFP */
 
@@ -123,7 +124,7 @@ int main(void)
 
   Status = xTaskCreate(Get_Time_RTC_Runnable, "Get Time ", 100, NULL, 2, &Get_Time_Handler);
   Status = xTaskCreate(Print_Time_Runnable, "Print Time", 100, NULL, 2, &Print_Time_Handler);
-  Status = xTaskCreate(Process_UART_Data_unnable, "UART Rx", 100, NULL, 3, &Process_Rx_Data_Handler);
+  Status = xTaskCreate(Process_UART_Data_unnable, "UART Rx", 100, NULL, 2, &Process_Rx_Data_Handler);
 
 
   vTaskStartScheduler();
@@ -185,47 +186,60 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
+
+static uint16_t Format_to_12(RTC_TimeTypeDef const *RTC_Struct_Info)
+{
+	uint8_t lhours = 0U;
+	uint8_t time_format[] = "am";
+
+	if(RTC_Struct_Info->Hours > 12U && RTC_Struct_Info->Hours < 24U)
+	{
+		strcpy((char*)time_format, "pm");
+		lhours = RTC_Struct_Info->Hours - 12U;
+	}
+	else if(RTC_Struct_Info->Hours  == 0x00U)
+	{
+		lhours = 12U;
+	}
+	else
+	{
+		lhours = RTC_Struct_Info->Hours;
+	}
+
+	uint16_t leng_message_uart = sprintf((char *)Buffer_time, "t0.txt=\"%02d:%02d:%02d %s\"", lhours, RTC_Struct_Info->Minutes, RTC_Struct_Info->Seconds, time_format);
+
+	return leng_message_uart;
+}
+
 static void Process_UART_Data_unnable(void * parameters)
 {
 	uint8_t UART1_rxBuffer_Runnable[SIZE_RX] = {0};
-	BaseType_t L_Status_UART_Rx;
+	char * found_str = NULL;
+	//BaseType_t L_Status_UART_Rx;
 	for(;;)
 	{
-		HAL_UART_Receive_IT (&huart1, (uint8_t *)UART1_rxBuffer, SIZE_RX);
-		printf("Process UART TX Rx Alive\n");
-		L_Status_UART_Rx = xQueueReceive(Time_UART_Rx_Queue_Handler, &UART1_rxBuffer_Runnable, portMAX_DELAY);
-
-		if(L_Status_UART_Rx == pdTRUE)
+		printf("UART Rx alive\n");
+		HAL_UART_Receive(&huart1, UART1_rxBuffer_Runnable, SIZE_RX, 1000);
+		found_str = strstr((char *)UART1_rxBuffer_Runnable, (char *)String_Search_Nextion);
+		if(found_str)
 		{
-			found = strstr((char *)UART1_rxBuffer,(char *)String_Search_Nextion);
-
-			if(found)
-			{
-				memset(UART1_rxBuffer, 0, sizeof(UART1_rxBuffer));
-				printf("Settings config activated\n");
-				vTaskSuspend(Get_Time_Handler);
-				printf("Suspending Get time task\n");
-				vTaskSuspend(Print_Time_Handler);
-				printf("Suspending Print time task\n");
-				taskYIELD();
-
-
-			}
-			else
-			{
-				memset(UART1_rxBuffer, 0, sizeof(UART1_rxBuffer));
-				printf("Settings config No-activated\n");
-				vTaskResume(Get_Time_Handler);
-				printf("Alive Get time task\n");
-				vTaskResume(Print_Time_Handler);
-				printf("Alive Print time task\n");
-				taskYIELD();
-			}
+			printf("Setting found\n");
+			vTaskSuspend(Get_Time_Handler);
+			printf("Suspending Get_Time\n");
+			vTaskSuspend(Print_Time_Handler);
+			printf("Suspending Print_Time\n");
+			memset(UART1_rxBuffer_Runnable, 0x00, sizeof(UART1_rxBuffer_Runnable));
 		}
-		else
+		else if(strstr((char *)UART1_rxBuffer_Runnable, "am") || strstr((char *)UART1_rxBuffer_Runnable, "pm"))
 		{
-			taskYIELD();
+			printf("Current time to be set is %s\n", UART1_rxBuffer_Runnable);
+			vTaskResume(Get_Time_Handler);
+			printf("Resuming Get_Time\n");
+			vTaskResume(Print_Time_Handler);
+			printf("Resuming Get_Time\n");
+			memset(UART1_rxBuffer_Runnable, 0x00, sizeof(UART1_rxBuffer_Runnable));
 		}
+		taskYIELD();
 	}
 }
 
@@ -247,11 +261,12 @@ static void Print_Time_Runnable(void * parameters)
 	for(;;)
 	{
 		xQueueReceive(Time_Queue_Handler, &L_RTC_Data, portMAX_DELAY);
-		uint16_t leng_message_uart = sprintf((char *)Buffer_time, "t0.txt=\"%02d:%02d:%02d\"", L_RTC_Data.Hours, L_RTC_Data.Minutes, L_RTC_Data.Seconds);
+		//uint16_t leng_message_uart = sprintf((char *)Buffer_time, "t0.txt=\"%02d:%02d:%02d\"", L_RTC_Data.Hours, L_RTC_Data.Minutes, L_RTC_Data.Seconds);
 #if 0
 		HAL_UART_Transmit_IT(&huart1, &Buffer_time, 16);
 		HAL_UART_Transmit_IT(&huart1, &fixed_end_nextion, 3);
 #endif
+		uint16_t leng_message_uart = Format_to_12(&L_RTC_Data);
 		HAL_UART_Transmit(&huart1, Buffer_time, leng_message_uart, 1000);
 		HAL_UART_Transmit(&huart1, fixed_end_nextion, 3, 1000);
 		printf("%d:%d:%d\n", L_RTC_Data.Hours, L_RTC_Data.Minutes, L_RTC_Data.Seconds);
@@ -279,8 +294,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-	memset(UART1_rxBuffer, 0, sizeof(UART1_rxBuffer));
-	xQueueSendFromISR(Time_UART_Rx_Queue_Handler,&UART1_rxBuffer, NULL);
+	__NOP();// do nothing here
 }
 /* USER CODE END 4 */
 
