@@ -67,6 +67,12 @@ typedef struct{
 
 }time_storage;
 
+typedef struct Local_RTC_t{
+
+	RTC_TimeTypeDef Local_RTC_Time;
+	RTC_DateTypeDef Local_RTC_Date;
+}Local_RTC_T;
+
 typedef struct
 {
 	uint16_t Message_Length;
@@ -98,7 +104,6 @@ QueueHandle_t Time_UART_Rx_Queue_Handler = NULL;
 BaseType_t Status;
 char * found = NULL;
 
-//static uint8_t Buffer_time[25] = {0};
 static uint8_t UART1_rxBuffer[25] = {0};
 uint8_t fixed_end_nextion [] = {0xFF, 0xFF, 0xFF};
 uint8_t String_Search_Nextion[] = "Settings";
@@ -112,13 +117,13 @@ uint8_t time_format[2] = {0};
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 
-static void Get_Time_RTC_Runnable(void * parameters);
+static void Get_RTC_Runnable(void * parameters);
 static void Print_Time_Runnable(void * parameters);
 static void Process_UART_Data_Runnable(void * parameters);
 
 static uint8_t Format_to_12(RTC_TimeTypeDef const *RTC_Struct_Info);
 static RTC_TimeTypeDef Format_to_24(uint16_t Rx_buffer, uint8_t meridiem);
-void wrapper_tx_data(RTC_TimeTypeDef const *data, TxUART * buffer_data, data_type_T conversion_type);
+void wrapper_tx_data(Local_RTC_T const *data, TxUART * buffer_data, data_type_T conversion_type);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -158,10 +163,10 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  Time_Queue_Handler = xQueueCreate(1,sizeof(TxUART));
+  Time_Queue_Handler = xQueueCreate(2,sizeof(TxUART));
   Time_UART_Rx_Queue_Handler = xQueueCreate(1,sizeof(UART1_rxBuffer));
 
-  Status = xTaskCreate(Get_Time_RTC_Runnable, "Get Time ", 100, NULL, 2, &Get_Time_Handler);
+  Status = xTaskCreate(Get_RTC_Runnable, "Get Time ", 100, NULL, 2, &Get_Time_Handler);
   Status = xTaskCreate(Print_Time_Runnable, "Print Time", 100, NULL, 2, &Print_Time_Handler);
   Status = xTaskCreate(Process_UART_Data_Runnable, "UART Rx", 200, NULL, 2, &Process_Rx_Data_Handler);
 
@@ -258,15 +263,15 @@ static RTC_TimeTypeDef Format_to_24(uint16_t Rx_buffer, uint8_t meridiem)
 	return local_RTC;
 }
 
-void wrapper_tx_data(RTC_TimeTypeDef const *data, TxUART * buffer_data, data_type_T conversion_type)
+void wrapper_tx_data(Local_RTC_T const *data, TxUART * buffer_data, data_type_T conversion_type)
 {
 	if(time == conversion_type)
 	{
-		buffer_data->Message_Length = sprintf((char*)buffer_data->Message_Data, "t0.txt=\"%02d:%02d:%02d %s\"",data->Hours, data->Minutes, data->Seconds, time_format);
+		buffer_data->Message_Length = sprintf((char*)buffer_data->Message_Data, "t0.txt=\"%02d:%02d:%02d %s\"",data->Local_RTC_Time.Hours, data->Local_RTC_Time.Minutes, data->Local_RTC_Time.Seconds, time_format);
 	}
 	else
 	{
-
+		buffer_data->Message_Length = sprintf((char*)buffer_data->Message_Data, "t0.txt=\"%d/%d/%d\"",data->Local_RTC_Date.Date, data->Local_RTC_Date.Month, data->Local_RTC_Date.Year);
 	}
 }
 static void Process_UART_Data_Runnable(void * parameters)
@@ -332,26 +337,29 @@ static void Process_UART_Data_Runnable(void * parameters)
   * @retval None
   */
 
-static void Get_Time_RTC_Runnable(void * parameters)
+static void Get_RTC_Runnable(void * parameters)
 {
-	RTC_TimeTypeDef Local_RTC_Data;
+	Local_RTC_T RTC_container;
 	TxUART tx_buffer[max_buffer_tx];
+	BaseType_t Queue_status = pdFALSE;
 	for(;;)
 	{
 #if Debug_ITM
 		printf("Getting Time Alive\n");
 #endif
-
-		HAL_RTC_GetTime(&hrtc, &Local_RTC_Data, RTC_FORMAT_BIN);
+		HAL_RTC_GetTime(&hrtc, &RTC_container.Local_RTC_Time, RTC_FORMAT_BIN);
+		HAL_RTC_GetDate(&hrtc, &RTC_container.Local_RTC_Date, RTC_FORMAT_BIN);
 		//Updating Hours
-		Local_RTC_Data.Hours = Format_to_12(&Local_RTC_Data);
-		wrapper_tx_data(&Local_RTC_Data, &tx_buffer[time], time);
+		RTC_container.Local_RTC_Time.Hours = Format_to_12(&RTC_container.Local_RTC_Time);
+		wrapper_tx_data((Local_RTC_T const *)&RTC_container.Local_RTC_Time, &tx_buffer[time], time);
+		wrapper_tx_data((Local_RTC_T const *)&RTC_container.Local_RTC_Date, &tx_buffer[date], date);
 
 #if Debug_ITM
 		printf("%s\n", tx_buffer[time].Message_Data);
 #endif
 
-		xQueueSend(Time_Queue_Handler, &tx_buffer[time], 0);
+		Queue_status = xQueueSend(Time_Queue_Handler, &tx_buffer[time], ( TickType_t )0);
+		Queue_status = xQueueSend(Time_Queue_Handler, &tx_buffer[date], ( TickType_t )0);
 		taskYIELD();
 	}
 }
@@ -371,7 +379,8 @@ static void Print_Time_Runnable(void * parameters)
 	TxUART tx_buffer[max_buffer_tx];
 	for(;;)
 	{
-		xQueueReceive(Time_Queue_Handler, &tx_buffer[time], portMAX_DELAY);
+		xQueueReceive(Time_Queue_Handler, &tx_buffer[time], ( TickType_t )0);
+		xQueueReceive(Time_Queue_Handler, &tx_buffer[date], ( TickType_t )0);
 #if 0
 		HAL_UART_Transmit_IT(&huart1, &Buffer_time, 16);
 		HAL_UART_Transmit_IT(&huart1, &fixed_end_nextion, 3);
