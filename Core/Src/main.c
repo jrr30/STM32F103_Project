@@ -271,7 +271,7 @@ void wrapper_tx_data(Local_RTC_T const *data, TxUART * buffer_data, data_type_T 
 	}
 	else
 	{
-		buffer_data->Message_Length = sprintf((char*)buffer_data->Message_Data, "t0.txt=\"%d/%d/%d\"",data->Local_RTC_Date.Date, data->Local_RTC_Date.Month, data->Local_RTC_Date.Year);
+		buffer_data->Message_Length = sprintf((char*)buffer_data->Message_Data, "t1.txt=\"%d/%d/%d\"",data->Local_RTC_Date.Date, data->Local_RTC_Date.Month, data->Local_RTC_Date.Year);
 	}
 }
 static void Process_UART_Data_Runnable(void * parameters)
@@ -351,8 +351,9 @@ static void Get_RTC_Runnable(void * parameters)
 		HAL_RTC_GetDate(&hrtc, &RTC_container.Local_RTC_Date, RTC_FORMAT_BIN);
 		//Updating Hours
 		RTC_container.Local_RTC_Time.Hours = Format_to_12(&RTC_container.Local_RTC_Time);
-		wrapper_tx_data((Local_RTC_T const *)&RTC_container.Local_RTC_Time, &tx_buffer[time], time);
-		wrapper_tx_data((Local_RTC_T const *)&RTC_container.Local_RTC_Date, &tx_buffer[date], date);
+		wrapper_tx_data((Local_RTC_T const *)&RTC_container, &tx_buffer[time], time);
+		//tx_buffer[date].Message_Length = sprintf((char*)tx_buffer[date].Message_Data, "t1.txt=\"%d/%d/%d\"",RTC_container.Local_RTC_Date.WeekDay, RTC_container.Local_RTC_Date.Month, RTC_container.Local_RTC_Date.Year);
+		wrapper_tx_data((Local_RTC_T const *)&RTC_container, &tx_buffer[date], date);
 
 #if Debug_ITM
 		printf("%s\n", tx_buffer[time].Message_Data);
@@ -388,7 +389,8 @@ static void Print_Time_Runnable(void * parameters)
 #endif
 		HAL_UART_Transmit(&huart1, tx_buffer[time].Message_Data, tx_buffer[time].Message_Length, 1000);
 		HAL_UART_Transmit(&huart1, fixed_end_nextion, 3, 1000);
-		printf("Nextion Time: %s\n", tx_buffer[time].Message_Data);
+		HAL_UART_Transmit(&huart1, tx_buffer[date].Message_Data, tx_buffer[date].Message_Length, 1000);
+		HAL_UART_Transmit(&huart1, fixed_end_nextion, 3, 1000);
 
 		taskYIELD();
 	}
