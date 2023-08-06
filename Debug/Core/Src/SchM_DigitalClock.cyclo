@@ -1,0 +1,6 @@
+../Core/Src/SchM_DigitalClock.c:101:16:Format_to_12	4
+../Core/Src/SchM_DigitalClock.c:134:6:wrapper_tx_data	2
+../Core/Src/SchM_DigitalClock.c:146:6:Task_Generation	1
+../Core/Src/SchM_DigitalClock.c:156:6:Get_RTC_Runnable	1
+../Core/Src/SchM_DigitalClock.c:196:6:Print_Time_Runnable	1
+../Core/Src/SchM_DigitalClock.c:218:6:Process_UART_Data_Runnable	9
