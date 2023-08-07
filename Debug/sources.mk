@@ -25,7 +25,11 @@ SUBDIRS := \
 Core/Src \
 Core/Startup \
 Drivers/STM32F1xx_HAL_Driver/Src \
-ThirdParty \
-ThirdParty/portable/GCC/ARM_CM3 \
-ThirdParty/portable/MemMang \
+ThirdParty/FreeRTOS \
+ThirdParty/FreeRTOS/portable/GCC/ARM_CM3 \
+ThirdParty/FreeRTOS/portable/MemMang \
+ThirdParty/SystemView_SEGGER/Config \
+ThirdParty/SystemView_SEGGER/SEGGER \
+ThirdParty/SystemView_SEGGER/SEGGER/Syscalls \
+ThirdParty/SystemView_SEGGER/Sample/FreeRTOS \
 

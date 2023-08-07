@@ -9,9 +9,13 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include ThirdParty/portable/MemMang/subdir.mk
--include ThirdParty/portable/GCC/ARM_CM3/subdir.mk
--include ThirdParty/subdir.mk
+-include ThirdParty/SystemView_SEGGER/Sample/FreeRTOS/subdir.mk
+-include ThirdParty/SystemView_SEGGER/SEGGER/Syscalls/subdir.mk
+-include ThirdParty/SystemView_SEGGER/SEGGER/subdir.mk
+-include ThirdParty/SystemView_SEGGER/Config/subdir.mk
+-include ThirdParty/FreeRTOS/portable/MemMang/subdir.mk
+-include ThirdParty/FreeRTOS/portable/GCC/ARM_CM3/subdir.mk
+-include ThirdParty/FreeRTOS/subdir.mk
 -include Drivers/STM32F1xx_HAL_Driver/Src/subdir.mk
 -include Core/Startup/subdir.mk
 -include Core/Src/subdir.mk

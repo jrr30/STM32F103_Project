@@ -160,6 +160,7 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
+#if Debug_ITM
 int _write(int file, char *ptr, int len)
 {
 	int DataIdx;
@@ -170,6 +171,7 @@ int _write(int file, char *ptr, int len)
 	}
 	return len;
 }
+#endif
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {

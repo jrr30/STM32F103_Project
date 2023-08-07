@@ -28,17 +28,24 @@ Core/Src/SchM_DigitalClock.o: ../Core/Src/SchM_DigitalClock.c \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h \
  ../Core/Inc/usart.h ../Core/Inc/gpio.h \
- C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/include/FreeRTOS.h \
- C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/FreeRTOSConfig.h \
- C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/include/projdefs.h \
- C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/include/portable.h \
- C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/include/deprecated_definitions.h \
- C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/portable/GCC/ARM_CM3/portmacro.h \
- C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/include/mpu_wrappers.h \
- C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/include/task.h \
- C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/include/list.h \
- C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/include/queue.h \
- C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/include/task.h
+ C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/FreeRTOS/include/FreeRTOS.h \
+ C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/FreeRTOS/FreeRTOSConfig.h \
+ C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/SystemView_SEGGER/Sample/FreeRTOS/SEGGER_SYSVIEW_FreeRTOS.h \
+ C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/SystemView_SEGGER/SEGGER/SEGGER_SYSVIEW.h \
+ C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/SystemView_SEGGER/SEGGER/SEGGER.h \
+ C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/SystemView_SEGGER/Config/Global.h \
+ C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/SystemView_SEGGER/SEGGER/SEGGER_SYSVIEW_ConfDefaults.h \
+ C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/SystemView_SEGGER/Config/SEGGER_SYSVIEW_Conf.h \
+ C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/SystemView_SEGGER/Config/SEGGER_RTT_Conf.h \
+ C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/FreeRTOS/include/projdefs.h \
+ C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/FreeRTOS/include/portable.h \
+ C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/FreeRTOS/include/deprecated_definitions.h \
+ C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/FreeRTOS/portable/GCC/ARM_CM3/portmacro.h \
+ C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/FreeRTOS/include/mpu_wrappers.h \
+ C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/FreeRTOS/include/task.h \
+ C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/FreeRTOS/include/list.h \
+ C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/FreeRTOS/include/queue.h \
+ C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/FreeRTOS/include/task.h
 ../Core/Inc/SchM_DigitalClock.h:
 ../Core/Inc/rtc.h:
 ../Core/Inc/main.h:
@@ -71,14 +78,21 @@ Core/Src/SchM_DigitalClock.o: ../Core/Src/SchM_DigitalClock.c \
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h:
 ../Core/Inc/usart.h:
 ../Core/Inc/gpio.h:
-C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/include/FreeRTOS.h:
-C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/FreeRTOSConfig.h:
-C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/include/projdefs.h:
-C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/include/portable.h:
-C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/include/deprecated_definitions.h:
-C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/portable/GCC/ARM_CM3/portmacro.h:
-C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/include/mpu_wrappers.h:
-C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/include/task.h:
-C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/include/list.h:
-C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/include/queue.h:
-C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/include/task.h:
+C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/FreeRTOS/include/FreeRTOS.h:
+C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/FreeRTOS/FreeRTOSConfig.h:
+C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/SystemView_SEGGER/Sample/FreeRTOS/SEGGER_SYSVIEW_FreeRTOS.h:
+C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/SystemView_SEGGER/SEGGER/SEGGER_SYSVIEW.h:
+C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/SystemView_SEGGER/SEGGER/SEGGER.h:
+C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/SystemView_SEGGER/Config/Global.h:
+C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/SystemView_SEGGER/SEGGER/SEGGER_SYSVIEW_ConfDefaults.h:
+C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/SystemView_SEGGER/Config/SEGGER_SYSVIEW_Conf.h:
+C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/SystemView_SEGGER/Config/SEGGER_RTT_Conf.h:
+C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/FreeRTOS/include/projdefs.h:
+C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/FreeRTOS/include/portable.h:
+C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/FreeRTOS/include/deprecated_definitions.h:
+C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/FreeRTOS/portable/GCC/ARM_CM3/portmacro.h:
+C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/FreeRTOS/include/mpu_wrappers.h:
+C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/FreeRTOS/include/task.h:
+C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/FreeRTOS/include/list.h:
+C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/FreeRTOS/include/queue.h:
+C:/Users/Jesus/STM32CubeIDE/STMF103C8_Clock/ThirdParty/FreeRTOS/include/task.h:
