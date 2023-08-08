@@ -1,1 +1,2 @@
+../Drivers/CMSIS/Include/core_cm3.h:1480:22:__NVIC_SetPriorityGrouping	24	static
 ../Core/Src/stm32f1xx_hal_msp.c:64:6:HAL_MspInit	24	static

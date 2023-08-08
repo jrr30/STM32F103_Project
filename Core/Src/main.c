@@ -29,6 +29,8 @@
 #include "task.h"
 #include "queue.h"
 
+#include "SEGGER_SYSVIEW.h"
+
 #include "SchM_DigitalClock.h"
 /* USER CODE END Includes */
 
@@ -97,6 +99,9 @@ int main(void)
   MX_GPIO_Init();
   MX_RTC_Init();
   MX_USART1_UART_Init();
+  SEGGER_SYSVIEW_Conf();
+  SEGGER_SYSVIEW_Start();
+
   /* USER CODE BEGIN 2 */
   Task_Generation();
 

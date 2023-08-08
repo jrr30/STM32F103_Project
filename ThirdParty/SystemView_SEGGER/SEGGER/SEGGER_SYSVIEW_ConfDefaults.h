@@ -265,7 +265,7 @@ extern "C" {
 *    1024
 */
 #ifndef   SEGGER_SYSVIEW_RTT_BUFFER_SIZE
-  #define SEGGER_SYSVIEW_RTT_BUFFER_SIZE          1024
+  #define SEGGER_SYSVIEW_RTT_BUFFER_SIZE          1024 * 2
 #endif
 
 /*********************************************************************
@@ -417,7 +417,7 @@ extern "C" {
 *    such as in embOS configuration to enable Cortex-M cycle counter.
 */
 #ifndef   SEGGER_SYSVIEW_USE_INTERNAL_RECORDER
-  #define SEGGER_SYSVIEW_USE_INTERNAL_RECORDER    0
+  #define SEGGER_SYSVIEW_USE_INTERNAL_RECORDER    1
 #endif
 
 /*********************************************************************
